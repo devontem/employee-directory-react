@@ -5,21 +5,13 @@ import BaseLayout from '../../layouts/base'
 import style from './style.module.css'
 import query from './query.graphql'
 import React, { useState } from 'react'
+import PersonCard from './../../components/PersonCard'
+import Department from './../../components/Department'
 
 interface Props {
 	allPeople: PersonRecord[]
 	allDepartments: DepartmentRecord[]
 }
-
-const PersonCard: React.FC<PersonRecord> = ({ name, avatar, department }) => (
-	<div className={style.personCard}>
-		{avatar && avatar.url && (
-			<img src={avatar.url} alt={name} className={style.personImage} />
-		)}
-		<h3>{name}</h3>
-		{department && <p>{department.name}</p>}
-	</div>
-)
 
 export default function PeoplePage({
 	allPeople,
@@ -47,42 +39,6 @@ export default function PeoplePage({
 			(!selectedDepartment ||
 				(person.department && person.department.name === selectedDepartment))
 	)
-
-	const getChildDepartments = (
-		parentId: string,
-		departments: DepartmentRecord[]
-	): DepartmentRecord[] => {
-		return departments.filter(
-			(dept) => dept.parent && dept.parent.id === parentId
-		)
-	}
-
-	const renderDepartment = (dept: DepartmentRecord, level = 0) => {
-		const isExpanded = expandedDepartments.includes(dept.name)
-		const children = getChildDepartments(dept.id, allDepartments)
-
-		return (
-			<React.Fragment>
-				<div
-					key={dept.id}
-					className={`${style.departmentItem} ${
-						children.length > 0 ? style.hasChildren : ''
-					} ${isExpanded ? style.expanded : ''} ${
-						style[`menu-level-${level}`]
-					}`}
-					data-level={level}
-					onClick={() => {
-						setSelectedDepartment(dept.name)
-						toggleDepartment(dept.name)
-					}}
-				>
-					{dept.name}
-				</div>
-				{isExpanded &&
-					children.map((childDept) => renderDepartment(childDept, level + 1))}
-			</React.Fragment>
-		)
-	}
 
 	const getRootDepartments = (departments: DepartmentRecord[]) => {
 		return departments.filter((dept) => !dept.parent)
@@ -114,14 +70,27 @@ export default function PeoplePage({
 			<div className={style.container}>
 				<aside className={style.sidebar}>
 					<h2>Filter By Department</h2>
-					{getRootDepartments(allDepartments).map((dept) =>
-						renderDepartment(dept)
-					)}
+					{getRootDepartments(allDepartments).map((dept) => (
+						<Department
+							key={dept.id}
+							department={dept}
+							allDepartments={allDepartments}
+							expandedDepartments={expandedDepartments}
+							onToggle={toggleDepartment}
+							onSelect={setSelectedDepartment}
+						/>
+					))}
 				</aside>
 				<main className={style.peopleList}>
 					{filteredPeople.map((person) => (
-						<PersonCard key={person.name} {...person} />
+						<PersonCard
+							key={person.name}
+							name={person.name}
+							avatar={person.avatar}
+							department={person.department?.name}
+						/>
 					))}
+
 					{!filteredPeople.length ? 'No results found.' : ''}
 				</main>
 			</div>

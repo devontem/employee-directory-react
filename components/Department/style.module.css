@@ -1,0 +1,35 @@
+.departmentItem {
+	cursor: pointer;
+	margin-top: 8px;
+	font-size: 14px;
+
+	&.hasChildren::before {
+		content: '\203A';
+		margin-right: 5px;
+	}
+
+	&.hasChildren.expanded::before {
+		content: '\2304';
+	}
+
+	/* Nested Menu Styles */
+	&.menu-level-1 {
+		padding-left: 20px;
+	}
+
+	&.menu-level-2 {
+		padding-left: 40px;
+	}
+
+	&.menu-level-3 {
+		padding-left: 60px;
+	}
+
+	&.menu-level-4 {
+		padding-left: 80px;
+	}
+
+	&.menu-level-5 {
+		padding-left: 100px;
+	}
+}
