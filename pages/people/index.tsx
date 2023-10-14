@@ -27,9 +27,18 @@ export default function PeoplePage({
 }: Props): React.ReactElement {
 	const [searchTerm, setSearchTerm] = useState('')
 	const [hideWithoutImage, setHideWithoutImage] = useState(false)
+	const [expandedDepartments, setExpandedDepartments] = useState<string[]>([])
 	const [selectedDepartment, setSelectedDepartment] = useState<string | null>(
 		null
 	)
+
+	const toggleDepartment = (deptName: string) => {
+		setExpandedDepartments((prevState) =>
+			prevState.includes(deptName)
+				? prevState.filter((d) => d !== deptName)
+				: [...prevState, deptName]
+		)
+	}
 
 	const filteredPeople = allPeople.filter(
 		(person) =>
@@ -39,10 +48,51 @@ export default function PeoplePage({
 				(person.department && person.department.name === selectedDepartment))
 	)
 
+	const getChildDepartments = (
+		parentId: string,
+		departments: DepartmentRecord[]
+	): DepartmentRecord[] => {
+		return departments.filter(
+			(dept) => dept.parent && dept.parent.id === parentId
+		)
+	}
+
+	const renderDepartment = (dept: DepartmentRecord, level = 0) => {
+		const isExpanded = expandedDepartments.includes(dept.name)
+		const children = getChildDepartments(dept.id, allDepartments)
+
+		return (
+			<React.Fragment>
+				<div
+					key={dept.id}
+					className={`${style.departmentItem} ${
+						children.length > 0 ? style.hasChildren : ''
+					} ${isExpanded ? style.expanded : ''} ${
+						style[`menu-level-${level}`]
+					}`}
+					data-level={level}
+					onClick={() => {
+						setSelectedDepartment(dept.name)
+						toggleDepartment(dept.name)
+					}}
+				>
+					{dept.name}
+				</div>
+				{isExpanded &&
+					children.map((childDept) => renderDepartment(childDept, level + 1))}
+			</React.Fragment>
+		)
+	}
+
+	const getRootDepartments = (departments: DepartmentRecord[]) => {
+		return departments.filter((dept) => !dept.parent)
+	}
+
 	return (
 		<div>
 			<div className={style['header-container']}>
 				<div className={style.header}>HashiCorp Humans</div>
+				<div className={style.subheader}>Find a HashiCorp human</div>
 				<input
 					type="text"
 					placeholder="Search people by name"
@@ -56,26 +106,23 @@ export default function PeoplePage({
 						checked={hideWithoutImage}
 						onChange={() => setHideWithoutImage(!hideWithoutImage)}
 					/>
-					<label>Hide people missing a profile image</label>
+					<label htmlFor="hideProfile">
+						Hide people missing a profile image
+					</label>
 				</div>
 			</div>
 			<div className={style.container}>
 				<aside className={style.sidebar}>
 					<h2>Filter By Department</h2>
-					{allDepartments.map((dept) => (
-						<div
-							key={dept.id}
-							className={style.departmentItem}
-							onClick={() => setSelectedDepartment(dept.name)}
-						>
-							{dept.name}
-						</div>
-					))}
+					{getRootDepartments(allDepartments).map((dept) =>
+						renderDepartment(dept)
+					)}
 				</aside>
 				<main className={style.peopleList}>
 					{filteredPeople.map((person) => (
 						<PersonCard key={person.name} {...person} />
 					))}
+					{!filteredPeople.length ? 'No results found.' : ''}
 				</main>
 			</div>
 		</div>
