@@ -7,6 +7,7 @@ import query from './query.graphql'
 import React, { useState } from 'react'
 import PersonCard from './../../components/PersonCard'
 import Department from './../../components/Department'
+import { getFilteredPeople, getRootDepartments } from 'lib/people-page-utils'
 
 interface Props {
 	allPeople: PersonRecord[]
@@ -32,17 +33,12 @@ export default function PeoplePage({
 		)
 	}
 
-	const filteredPeople = allPeople.filter(
-		(person) =>
-			person.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-			(!hideWithoutImage || (person.avatar && person.avatar.url)) &&
-			(!selectedDepartment ||
-				(person.department && person.department.name === selectedDepartment))
-	)
-
-	const getRootDepartments = (departments: DepartmentRecord[]) => {
-		return departments.filter((dept) => !dept.parent)
-	}
+	const filteredPeople = getFilteredPeople({
+		allPeople,
+		selectedDepartment,
+		hideWithoutImage,
+		searchTerm,
+	})
 
 	return (
 		<div>
