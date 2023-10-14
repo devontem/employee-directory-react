@@ -11,8 +11,11 @@ interface Props {
 	allDepartments: DepartmentRecord[]
 }
 
-const PersonCard: React.FC<PersonRecord> = ({ name }) => (
+const PersonCard: React.FC<PersonRecord> = ({ name, avatar }) => (
 	<div className={style.personCard}>
+		{avatar && avatar.url && (
+			<img src={avatar.url} alt={name} className={style.personImage} />
+		)}
 		<h3>{name}</h3>
 	</div>
 )
@@ -22,9 +25,12 @@ export default function PeoplePage({
 	allDepartments,
 }: Props): React.ReactElement {
 	const [searchTerm, setSearchTerm] = useState('')
+	const [hideWithoutImage, setHideWithoutImage] = useState(false)
 
-	const filteredPeople = allPeople.filter((person) =>
-		person.name.toLowerCase().includes(searchTerm.toLowerCase())
+	const filteredPeople = allPeople.filter(
+		(person) =>
+			person.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+			(!hideWithoutImage || (person.avatar && person.avatar.url))
 	)
 
 	return (
@@ -38,6 +44,14 @@ export default function PeoplePage({
 					onChange={(e) => setSearchTerm(e.target.value)}
 					className={style['search-input']}
 				/>
+				<div className={style['checkbox-container']}>
+					<input
+						type="checkbox"
+						checked={hideWithoutImage}
+						onChange={() => setHideWithoutImage(!hideWithoutImage)}
+					/>
+					<label>Hide people missing a profile image</label>
+				</div>
 			</div>
 			<div className={style.container}>
 				<main className={style.peopleList}>
