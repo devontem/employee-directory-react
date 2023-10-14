@@ -1,3 +1,5 @@
+import { DepartmentRecord } from 'types'
+
 export const getRootDepartments = (departments: DepartmentRecord[]) => {
 	return departments.filter((dept) => !dept.parent)
 }
