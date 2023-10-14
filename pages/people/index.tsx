@@ -11,12 +11,13 @@ interface Props {
 	allDepartments: DepartmentRecord[]
 }
 
-const PersonCard: React.FC<PersonRecord> = ({ name, avatar }) => (
+const PersonCard: React.FC<PersonRecord> = ({ name, avatar, department }) => (
 	<div className={style.personCard}>
 		{avatar && avatar.url && (
 			<img src={avatar.url} alt={name} className={style.personImage} />
 		)}
 		<h3>{name}</h3>
+		{department && <p>{department.name}</p>}
 	</div>
 )
 
@@ -26,11 +27,16 @@ export default function PeoplePage({
 }: Props): React.ReactElement {
 	const [searchTerm, setSearchTerm] = useState('')
 	const [hideWithoutImage, setHideWithoutImage] = useState(false)
+	const [selectedDepartment, setSelectedDepartment] = useState<string | null>(
+		null
+	)
 
 	const filteredPeople = allPeople.filter(
 		(person) =>
 			person.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-			(!hideWithoutImage || (person.avatar && person.avatar.url))
+			(!hideWithoutImage || (person.avatar && person.avatar.url)) &&
+			(!selectedDepartment ||
+				(person.department && person.department.name === selectedDepartment))
 	)
 
 	return (
@@ -54,6 +60,18 @@ export default function PeoplePage({
 				</div>
 			</div>
 			<div className={style.container}>
+				<aside className={style.sidebar}>
+					<h2>Filter By Department</h2>
+					{allDepartments.map((dept) => (
+						<div
+							key={dept.id}
+							className={style.departmentItem}
+							onClick={() => setSelectedDepartment(dept.name)}
+						>
+							{dept.name}
+						</div>
+					))}
+				</aside>
 				<main className={style.peopleList}>
 					{filteredPeople.map((person) => (
 						<PersonCard key={person.name} {...person} />
