@@ -1,4 +1,4 @@
-import { DepartmentRecord } from 'types'
+import { DepartmentRecord, PersonRecord } from 'types'
 
 interface FilterArgs {
 	allPeople: PersonRecord[]
