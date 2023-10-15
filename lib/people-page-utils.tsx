@@ -1,14 +1,14 @@
 import { DepartmentRecord } from 'types'
 
-export const getRootDepartments = (departments: DepartmentRecord[]) => {
-	return departments.filter((dept) => !dept.parent)
-}
-
 interface FilterArgs {
 	allPeople: PersonRecord[]
 	selectedDepartment?: string | null
 	hideWithoutImage: boolean
 	searchTerm: string
+}
+
+export const getRootDepartments = (departments: DepartmentRecord[]) => {
+	return departments.filter((dept) => !dept.parent)
 }
 
 export const getFilteredPeople = ({
